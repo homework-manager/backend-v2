@@ -1,5 +1,5 @@
 module.exports = app => {
-  const User = require('../schemas/User');
+  const Group = require('../schemas/Group');
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
@@ -7,55 +7,60 @@ module.exports = app => {
   const { regexps } = require('../../config.js');
 
   app.get(
-    '/api/v1/account',
+    '/api/v1/groups',
     authenticationMiddleware(),
-    (req, res) => {
+    async (req, res) => {
+      const groups = await Group.find({
+        members: {$elemMatch: {id: req.user._id}}
+      });
+
       res
         .status(200)
-        .json({ success: true, user: req.user.getPrivateData() });
+        .json({ success: true, groups });
     }
   );
 
   app.post(
-    '/api/v1/account',
+    '/api/v1/group',
+    authenticationMiddleware(),
     dataNormalizationMiddleware(),
     async (req, res) => {
-      const newUser = new User(req.body);
-    
-      newUser.setPassword(req.body.password);
+      const newGroup = new Group(req.body);
+
+      newGroup.addMember(req.user._id, [{ admin: true }]);
 
       try {
-        await newUser.save();
+        await newGroup.save();
       } catch (error) {
         return handleError(error, req, res);
       }
 
       res
         .status(200)
-        .json({ success: true });
+        .json({ success: true, group: newGroup });
     }
   );
 
   app.patch(
-    '/api/v1/account',
+    '/api/v1/group/:groupId',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     async (req, res) => {
-      const { username, fullname, email } = req.body;
+      const { name, joinName } = req.body;
       
       try {
-        const profile = await Group.findOneAndUpdate(
-          { _id: req.user._id },
-          { username, fullname, email },
+        const group = await Group.findOneAndUpdate(
+          { _id: req.params.groupId },
+          { name, joinName },
           { new: true, runValidators: true, context: 'query' }
-        ).getPrivateData();
+        );
       } catch (error) {
         return handleError(error, req, res);
       }
 
       res
         .status(200)
-        .json({ success: true, profile });
+        .json({ success: true, group });
     }
   );
 
