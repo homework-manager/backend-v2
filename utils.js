@@ -11,10 +11,19 @@ function compareHash (string, hash) {
 }
 
 function handleUnauthorized () {
-  return (req, res, next) => {
+  return (err, req, res, next) => {
+    console.log(req.body)
     res
       .status(401)
       .json({ success: false, error: 'unauthorized' });
+  };
+}
+
+function handleForbidden () {
+  return (req, res) => {
+    res
+      .status(403)
+      .json({ success: false, error: 'forbidden' });
   };
 }
 
@@ -23,7 +32,7 @@ function authenticationMiddleware ()  {
     if (req.isAuthenticated()) {
       next();
     } else {
-      handleUnauthorized()(req, res, next);
+      handleUnauthorized()(null, req, res, next);
     }
   };
 }
@@ -75,6 +84,6 @@ function handleError (error, req, res) {
 }
 
 module.exports = {
-  createHash, compareHash, handleError,
+  createHash, compareHash, handleError, handleForbidden,
   handleUnauthorized, authenticationMiddleware,
   dataNormalizationMiddleware };

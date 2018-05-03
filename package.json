@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "test": "NODE_ENV=development jest",
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon"
   },
   "author": "makmm",
   "license": "MIT",
@@ -20,5 +21,20 @@
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "frisby": "^2.0.16",
+    "jest": "^22.4.3",
+    "jest-environment-node": "^22.4.3",
+    "mongodb": "^3.0.7",
+    "mongodb-memory-server": "^1.7.3",
+    "node-fetch": "^2.1.2",
+    "nodemon": "^1.17.3",
+    "supertest": "^3.0.0"
+  },
+  "jest": {
+    "globalSetup": "./testsetup/setup.js",
+    "globalTeardown": "./testsetup/teardown.js",
+    "testEnvironment": "./testsetup/test-environment.js"
   }
 }
