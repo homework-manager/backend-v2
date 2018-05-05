@@ -1,11 +1,16 @@
 const assert = require('assert');
-const mongoose = require('mongoose');
 
 const {
-  fetch,
+  fetch, fetchWithToken,
+  getMockData,
+  editAccount,
   createAccount } = require('./__helperFunctions__');
 
 describe('account', function () {
+
+  // ################
+  //  create account
+  // ################
 
   it('should fail at creating account (no json)', () =>
     fetch('/api/v1/account', { method: 'POST' })
@@ -76,6 +81,52 @@ describe('account', function () {
       .then(json => {
         assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
+      })
+  );
+
+  // ################
+  //  edit account
+  // ################
+
+  it('should fail at editing an account (not logged in)', () =>
+    fetch('/api/v1/account', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(getMockData())
+    })
+      .then(res => res.json())
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(json.error, 'unauthorized');
+      })
+  );
+
+  it('should fail at editing an account (no json)', () =>
+    fetchWithToken('/api/v1/account', { method: 'PATCH' })
+      .then(res => res.json())
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(/IsRequired/.test(json.error), true);
+      })
+  );
+
+  it('should fail at editing an account (empty json)', () =>
+    fetchWithToken('/api/v1/account', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    })
+      .then(res => res.json())
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(/IsRequired/.test(json.error), true);
       })
   );
 
