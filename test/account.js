@@ -11,7 +11,7 @@ describe('account', function () {
     fetch('/api/v1/account', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -27,7 +27,7 @@ describe('account', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -36,7 +36,7 @@ describe('account', function () {
   it('should fail at creating account (invalid username)', () =>
     createAccount({ username: '(invalid username)' })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'usernameIsInvalid');
       })
@@ -45,7 +45,7 @@ describe('account', function () {
   it('should fail at creating account (invalid password)', () =>
     createAccount({ password: 'shrt' })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'passwordIsInvalid');
       })
@@ -54,7 +54,7 @@ describe('account', function () {
   it('should fail at creating account (invalid email)', () =>
     createAccount({ email: 'not valid email' })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'emailIsInvalid');
       })
@@ -65,7 +65,7 @@ describe('account', function () {
       fullname: Array(50).fill('bullshit').join('')
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'fullnameIsInvalid');
       })
@@ -74,7 +74,7 @@ describe('account', function () {
   it('should create a account', () =>
     createAccount()
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
       })
   );
