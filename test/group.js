@@ -12,7 +12,7 @@ describe('group', function () {
     fetchWithToken('/api/v1/group', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -28,7 +28,7 @@ describe('group', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
