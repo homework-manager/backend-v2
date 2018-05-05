@@ -6,7 +6,7 @@ module.exports = (function () {
   config.regexps = {
     username: /^[A-Z0-9_.]{1,16}$/i,
     fullname: /^.{1,200}$/,
-    password: /^.{6,}$/,
+    // password: /^.{6,}$/,
     email: /^[A-Z0-9._%+-]{1,32}@[A-Z0-9._]{4,32}$/i,
 
     homework: {
@@ -23,8 +23,10 @@ module.exports = (function () {
   config.PORT = process.env.PORT || 8000;
   config.DB_HOST = process.env.DB_HOST || 'mongodb://localhost/hwmv2';
 
-  if (!process.env.SESSION_SECRET) {
-    console.log('no SESSION_SECRET variable, falling back to development default')
+  if (!process.env.SESSION_SECRET && process.env.NODE_ENV != 'development') {
+    console.error('SESSION_SECRET not defined and NODE_ENV not development!!')
+    console.error('exiting...')
+    process.exit(1);
   }
   config.SESSION_SECRET = process.env.SESSION_SECRET || 'dev waffles :D';
 

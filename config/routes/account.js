@@ -12,7 +12,7 @@ module.exports = app => {
     (req, res) => {
       res
         .status(200)
-        .json({ success: true, user: req.user.getPrivateData() });
+        .json({ success: true, account: req.user.getPrivateData() });
     }
   );
 
@@ -21,8 +21,22 @@ module.exports = app => {
     dataNormalizationMiddleware(),
     async (req, res) => {
       const newUser = new User(req.body);
-    
-      newUser.setPassword(req.body.password);
+
+      if (!req.body.password) {
+        return res
+          .status(400)
+          .json({ success: false, error: 'passwordIsRequired' });
+      }
+
+      try {
+        newUser.setPassword(req.body.password);
+      } catch (error) {
+        if (error.message.match(/invalid/)) {
+          return res
+            .status(400)
+            .json({ success: false, error: 'passwordIsInvalid' });
+        }
+      }
 
       try {
         await newUser.save();
@@ -43,13 +57,24 @@ module.exports = app => {
     async (req, res) => {
       const { username, fullname, email } = req.body;
       
+      let profile
+
       try {
-        const profile = await Group.findOneAndUpdate(
+        await User.updateOne(
           { _id: req.user._id },
           { username, fullname, email },
           { new: true, runValidators: true, context: 'query' }
-        ).getPrivateData();
+        );
+
+        profile = (await User
+          .findOne({ _id: req.user._id }))
+          .getPrivateData();
+
+        console.log(profile)
+
+
       } catch (error) {
+        // console.log(error)
         return handleError(error, req, res);
       }
 
