@@ -27,7 +27,7 @@ before('connect mongoose to in-memory mongo server', async () => {
 before('start express server', async () => {
   const server = await expressApp.listen(0, false);
   const port = server.address().port;
-  global.serverAddress = `http://127.0.0.1:${port}`;
+  global.__SERVER_ADDRESS__ = `http://127.0.0.1:${port}`;
   await require('../config/passport')();
 });
 
