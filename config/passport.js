@@ -1,37 +1,27 @@
 module.exports = async () => new Promise((resolve, reject) => {
   const User = require('./schemas/User');
   const { compareHash } = require('../utils.js');
+  const { SESSION_SECRET } = require('../config.js');
 
   const passport = require('passport');
   const LocalStrategy = require('passport-local').Strategy;
+  const JwtStrategy = require('passport-jwt').Strategy;
+  const { ExtractJwt } = require('passport-jwt');
 
-  passport.use(new LocalStrategy(
-    async (username, password, done) => {
-      const user = await User.findOne({ username });
+  passport.use(new JwtStrategy({
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: SESSION_SECRET
+  }, async (jwtPayload, done) => {
+
+    const user = await User.findOne({ _id: jwtPayload.id });
   
-      if (!user) {
-        return done(null, false);
-      }
-      
-      if (compareHash(password, user.passwordHash)) {
-        return done(null, user);
-      } else {
-        return done(null, false);
-      }
+    if (user) {
+      return done(null, user);
+    } else {
+      return done(null, false, { success: false, error: 'unauthorized' });
     }
-  ));
 
-  passport.serializeUser((user, cb) => {
-    cb(null, user._id);
-  });
-
-  passport.deserializeUser(async (id, cb) => {
-    try {
-      cb(null, await User.findOne({ _id: id }));
-    } catch (error) {
-      cb(error);
-    }
-  });
+  }));
 
   resolve();
 });
