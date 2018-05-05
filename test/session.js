@@ -35,6 +35,20 @@ describe('session', function () {
       })
   );
 
+  it('should fail at trying to log in (wrong username)', async () => {
+    const user = await createAccountViaSchema();
+
+    return await logIn({
+      username: 'not the username',
+      password: user.password
+    })
+      .then(json => {
+        assert.equal(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(json.error, 'unauthorized');
+      });
+  });
+
   it('should fail at trying to log in (wrong password)', async () => {
     const user = await createAccountViaSchema();
 
