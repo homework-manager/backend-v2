@@ -68,9 +68,7 @@ module.exports = app => {
           { new: true, runValidators: true, context: 'query' }
         );
 
-        profile = (await User
-          .findOne({ _id: req.user._id }))
-          .getPrivateData();
+        profile = (await User.findOne({ _id: req.user._id })).getPrivateData();
 
         console.log(profile)
 
