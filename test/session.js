@@ -11,6 +11,32 @@ const {
 describe('session', function () {
   beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
+  it('should fail at trying to log in (no json)', async () =>
+    fetch('/api/v1/session', {
+      method: 'POST'
+    })
+      .then(res => res.json())
+      .then(json => {
+        assert.equal(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(/IsRequired/.test(json.error), true);
+      })
+  );
+
+  it('should fail at trying to log in (empty json)', async () =>
+    fetch('/api/v1/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+      .then(res => res.json())
+      .then(json => {
+        assert.equal(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(/IsRequired/.test(json.error), true);
+      })
+  );
+
   it('should fail at trying to log in (account doesn\'t exist)', () =>
     logIn({
       username: 'skrrt',
