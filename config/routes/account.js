@@ -3,6 +3,7 @@ module.exports = app => {
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
+    handleUnauthorized,
     handleError } = require('../../utils');
   const { regexps } = require('../../config.js');
 
@@ -13,7 +14,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, account: req.user.getPrivateData() });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -66,9 +68,7 @@ module.exports = app => {
           { new: true, runValidators: true, context: 'query' }
         );
 
-        profile = (await User
-          .findOne({ _id: req.user._id }))
-          .getPrivateData();
+        profile = (await User.findOne({ _id: req.user._id })).getPrivateData();
 
         console.log(profile)
 
@@ -81,7 +81,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, profile });
-    }
+    },
+    handleUnauthorized()
   );
 
 };

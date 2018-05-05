@@ -9,15 +9,12 @@ const {
   getRandomToken } = require('./__helperFunctions__');
 
 describe('session', function () {
-  beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
   it('should fail at trying to log in (no json)', async () =>
-    fetch('/api/v1/session', {
-      method: 'POST'
-    })
+    fetch('/api/v1/session', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -31,11 +28,25 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
   );
+
+  it('should fail at trying to log in (wrong username)', async () => {
+    const user = await createAccountViaSchema();
+
+    return await logIn({
+      username: 'not the username',
+      password: user.password
+    })
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(json.error, 'unauthorized');
+      });
+  });
 
   it('should fail at trying to log in (wrong password)', async () => {
     const user = await createAccountViaSchema();
@@ -45,7 +56,7 @@ describe('session', function () {
       password: 'not the password'
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       });
@@ -57,7 +68,7 @@ describe('session', function () {
       password: 'eskere'
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       })
@@ -71,7 +82,7 @@ describe('session', function () {
       password: user.password
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
         assert.strictEqual(/^Bearer /.test(json.token), true);
       });
@@ -87,7 +98,7 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       })
@@ -103,8 +114,9 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
       });
   });
+
 });
