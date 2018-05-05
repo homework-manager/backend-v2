@@ -68,6 +68,16 @@ const getRandomToken = async () => {
     .then(json => json.token);
 };
 
+const fetchWithToken = async (path, settings) => {
+  return await fetch(path, {
+    ...settings,
+    headers: {
+      ...(settings.headers || {}),
+      'Authorization': await getRandomToken()
+    }
+  });
+};
+
 // #################
 //  account stuff
 // #################
@@ -85,6 +95,6 @@ const createGroup = createUsingAPI('group', 'POST');
 const createGroupViaSchema = createUsingSchema(Group);
 
 module.exports = {
-  getMockData, fetch,
+  getMockData, fetch, fetchWithToken,
   logIn, getRandomToken,
   createAccount, createAccountViaSchema };
