@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=development jest",
+    "test": "NODE_ENV=development mocha -t 10000",
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon"
   },
@@ -13,6 +13,7 @@
   "dependencies": {
     "bcrypt": "^2.0.0",
     "body-parser": "^1.18.2",
+    "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
@@ -23,18 +24,10 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "frisby": "^2.0.16",
-    "jest": "^22.4.3",
-    "jest-environment-node": "^22.4.3",
+    "mocha": "^5.1.1",
     "mongodb": "^3.0.7",
     "mongodb-memory-server": "^1.7.3",
     "node-fetch": "^2.1.2",
-    "nodemon": "^1.17.3",
-    "supertest": "^3.0.0"
-  },
-  "jest": {
-    "globalSetup": "./testsetup/setup.js",
-    "globalTeardown": "./testsetup/teardown.js",
-    "testEnvironment": "./testsetup/test-environment.js"
+    "nodemon": "^1.17.3"
   }
 }

@@ -12,7 +12,6 @@ function compareHash (string, hash) {
 
 function handleUnauthorized () {
   return (err, req, res, next) => {
-    console.log(req.body)
     res
       .status(401)
       .json({ success: false, error: 'unauthorized' });

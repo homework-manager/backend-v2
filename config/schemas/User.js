@@ -32,6 +32,9 @@ userSchema.methods.getPrivateData = function () {
 const { createHash } = require('../../utils');
 
 userSchema.methods.setPassword = function (password) {
+  if (password.length < 6) {
+    throw new Error('invalid');
+  }
   this.passwordHash = createHash(password);
 };
 

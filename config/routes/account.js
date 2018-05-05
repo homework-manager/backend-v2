@@ -22,13 +22,21 @@ module.exports = app => {
     async (req, res) => {
       const newUser = new User(req.body);
 
-      if (req.body.password.length < 6) {
+      if (!req.body.password) {
         return res
           .status(400)
-          .json({ success: false, error: 'passwordIsInvalid' });
+          .json({ success: false, error: 'passwordIsRequired' });
       }
 
-      newUser.setPassword(req.body.password);
+      try {
+        newUser.setPassword(req.body.password);
+      } catch (error) {
+        if (error.message.match(/invalid/)) {
+          return res
+            .status(400)
+            .json({ success: false, error: 'passwordIsInvalid' });
+        }
+      }
 
       try {
         await newUser.save();
