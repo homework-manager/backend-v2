@@ -12,6 +12,8 @@ describe('account', function () {
   //  create account
   // ################
 
+  describe('create account', function () {
+
   it('should fail at creating account (no json)', () =>
     fetch('/api/v1/account', { method: 'POST' })
       .then(res => res.json())
@@ -84,6 +86,8 @@ describe('account', function () {
       })
   );
 
+  });
+  
   // ################
   //  edit account
   // ################
