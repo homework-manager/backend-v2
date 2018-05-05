@@ -147,6 +147,17 @@ describe('account', function () {
         })
     );
 
+    it('should fail at editing account (invalid email)', () => 
+      editAccount({
+        email: 'this is an invalid email'
+      })
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, false);
+          assert.strictEqual(json.error, 'emailIsInvalid');
+        })
+    );
+
   });
 
 });
