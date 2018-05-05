@@ -8,6 +8,14 @@ const getRandomPassword = getRandomUsername;
 const getRandomEmail = () =>
   '000000@000000'.replace(/0/g, () => (~~(Math.random()*16)).toString(16));
 
+const getMockData = () => ({
+  username: getRandomUsername(),
+  email: getRandomEmail(),
+  fullname: getRandomUsername(),
+  password: getRandomPassword(),
+  name: getRandomUsername(),
+  joinName: getRandomUsername()
+});
 
 const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS__ + path, settings);
 
@@ -21,26 +29,27 @@ const logIn = userData =>
   })
     .then(res => res.json());
 
-const createAccount = userData =>
+const createAccount = (dataOverride = {}) =>
   fetch('/api/v1/account', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify({ ...getMockData(), ...dataOverride })
   })
     .then(res => res.json());
 
-const createAccountViaSchema = async () => {
-  const password = getRandomPassword();
+const createAccountViaSchema = async (dataOverride = {}) => {
+  const data = { ...getMockData(), ...dataOverride };
 
   const user = new User({
-    username: getRandomUsername(),
-    email: getRandomEmail()
+    username: data.username,
+    email: data.email
   });
-  user.setPassword(password);
+  user.setPassword(data.password);
   await user.save();
-  return { ...user._doc, password };
+
+  return { ...data, ...user._doc };
 };
 
 const getRandomToken = async () => {
@@ -52,13 +61,6 @@ const getRandomToken = async () => {
   })
     .then(json => json.token);
 };
-
-const getMockData = () => ({
-  username: getRandomUsername(),
-  email: getRandomEmail(),
-  fullname: getRandomUsername(),
-  password: getRandomPassword()
-});
 
 module.exports = {
   fetch, logIn, createAccount, createAccountViaSchema,
