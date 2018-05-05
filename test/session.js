@@ -14,7 +14,7 @@ describe('session', function () {
     fetch('/api/v1/session', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -28,7 +28,7 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
@@ -42,7 +42,7 @@ describe('session', function () {
       password: user.password
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       });
@@ -56,7 +56,7 @@ describe('session', function () {
       password: 'not the password'
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       });
@@ -68,7 +68,7 @@ describe('session', function () {
       password: 'eskere'
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       })
@@ -82,7 +82,7 @@ describe('session', function () {
       password: user.password
     })
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
         assert.strictEqual(/^Bearer /.test(json.token), true);
       });
@@ -98,7 +98,7 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'unauthorized');
       })
@@ -114,7 +114,7 @@ describe('session', function () {
     })
       .then(res => res.json())
       .then(json => {
-        assert.equal(typeof json, 'object');
+        assert.strictEqual(typeof json, 'object');
         assert.strictEqual(json.success, true);
       });
   });
