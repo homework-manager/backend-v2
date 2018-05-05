@@ -1,4 +1,5 @@
 const User = require('../config/schemas/User');
+const Group = require('../config/schemas/Group');
 
 // #################
 //  mock data stuff
@@ -28,18 +29,34 @@ const getMockData = () => ({
 const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS__ + path, settings);
 
 // #################
-//  session stuff
+// generic stuff
 // #################
 
-const logIn = userData =>
-  fetch('/api/v1/session', {
-    method: 'POST',
+const createUsingAPI = (name, method) => (dataOverride = {}) =>
+  fetch(`/api/v1/${name}`, {
+    method,
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(userData)
+    body: JSON.stringify({ ...getMockData(), ...dataOverride })
   })
     .then(res => res.json());
+
+const createUsingSchema = schema => async (dataOverride = {}) => {
+  const data = { ...getMockData(), ...dataOverride };
+
+  const thing = new User(data);
+  if (thing.setPassword) thing.setPassword(data.password);
+  await thing.save();
+
+  return { ...data, ...thing._doc };
+};
+
+// #################
+//  session stuff
+// #################
+
+const logIn = createUsingAPI('session', 'POST');
 
 const getRandomToken = async () => {
   const user = await createAccountViaSchema();
@@ -55,28 +72,17 @@ const getRandomToken = async () => {
 //  account stuff
 // #################
 
-const createAccount = (dataOverride = {}) =>
-  fetch('/api/v1/account', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ ...getMockData(), ...dataOverride })
-  })
-    .then(res => res.json());
+const createAccount = createUsingAPI('account', 'POST');
 
-const createAccountViaSchema = async (dataOverride = {}) => {
-  const data = { ...getMockData(), ...dataOverride };
+const createAccountViaSchema = createUsingSchema(User);
 
-  const user = new User({
-    username: data.username,
-    email: data.email
-  });
-  user.setPassword(data.password);
-  await user.save();
+// #################
+//  group stuff
+// #################
 
-  return { ...data, ...user._doc };
-};
+const createGroup = createUsingAPI('group', 'POST');
+
+const createGroupViaSchema = createUsingSchema(Group);
 
 module.exports = {
   fetch, logIn, createAccount, createAccountViaSchema,
