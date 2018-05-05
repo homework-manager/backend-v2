@@ -3,7 +3,6 @@ const { SESSION_SECRET } = config;
 const PORT_ENV = config.PORT;
 
 const express = require('express');
-const session = require('express-session');
 const timeout = require('connect-timeout');
 const passport = require('passport');
 const bodyParser = require('body-parser');
@@ -13,12 +12,6 @@ const app = express();
 let server;
 
 app.use(bodyParser.json());
-// app.use(require('cookie-parser')());
-// app.use(session({
-//   secret: SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: false
-// }));
 app.use(passport.initialize());
 app.use(passport.session());
 
