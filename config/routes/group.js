@@ -1,9 +1,11 @@
 module.exports = app => {
+  const User = require('../schemas/User');
   const Group = require('../schemas/Group');
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
-    handleError } = require('../../utils');
+    handleError,
+    handleForbidden } = require('../../utils');
   const { regexps } = require('../../config.js');
 
   app.get(
@@ -41,6 +43,95 @@ module.exports = app => {
     }
   );
 
+  app.post(
+    '/api/v1/group/join/:joinName',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    async (req, res) => {
+      const group = Group.findOne({ joinName: req.params.joinName });
+
+      group.addMember(req.user._id);
+
+      try {
+        await group.save();
+      } catch (error) {
+        return handleError(error, req, res);
+      }
+
+      res
+        .status(200)
+        .json({ success: true, group: newGroup });
+    }
+  );
+
+  app.post(
+    '/api/v1/group/:groupId/makeMemberAdmin',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    async (req, res) => {
+      const group = Group.findOne({ _id: req.params.groupId });
+
+      if (group.userIsAdmin(req.user._id)) {
+        const member = group.members.find(member => (
+          req.body.memberId === member.id
+        ));
+
+        if (member) {
+          member.addAdmin();
+        } else {
+          return res
+            .status(404)
+            .json({ success: false, error: 'memberDoesntExist' });
+        }
+      } else {
+        return handleForbidden(req, res);
+      }
+
+      try {
+        await group.save();
+      } catch (error) {
+        return handleError(error, req, res);
+      }
+
+      res
+        .status(200)
+        .json({ success: true, group });
+    }
+  );
+
+  app.post(
+    '/api/v1/group/:groupId/removeAdminFromMember',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    async (req, res) => {
+      const group = Group.findOne({ _id: req.params.groupId });
+
+      if (group.userIsAdmin(req.user._id)) {
+        const member = group.members.find(member => (
+          req.body.memberId === member.id
+        ));
+
+        if (member) {
+          member.removeAdmin();
+        } else {
+          return res
+            .status(404)
+            .json({ success: false, error: 'memberDoesntExist' });
+        }
+      }
+
+      try {
+        await group.save();
+      } catch (error) {
+        return handleError(error, req, res);
+      }
+
+      res
+        .status(200)
+        .json({ success: true, group });
+    }
+  );
+
   app.patch(
     '/api/v1/group/:groupId',
     authenticationMiddleware(),
@@ -61,6 +152,24 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group });
+    }
+  );
+
+  app.get(
+    '/api/v1/group/:groupId/members',
+    authenticationMiddleware(),
+    async (req, res) => {
+      const group = await Group.findOne({ _id: req.params.groupId });
+
+      const members = await User.find({
+        _id: group.members.map(member => member.id)
+      });
+
+      const membersInfo = members.map(member => member.getPublicData());
+
+      res
+        .status(200)
+        .json({ success: true, members: membersInfo });
     }
   );
 

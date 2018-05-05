@@ -12,7 +12,7 @@ module.exports = async () => new Promise((resolve, reject) => {
       if (!user) {
         return done(null, false);
       }
-  
+      
       if (compareHash(password, user.passwordHash)) {
         return done(null, user);
       } else {

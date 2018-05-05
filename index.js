@@ -1,14 +1,17 @@
-;(async function () {})()
-  .then(async function () {
-    try {
-      await require('./config/mongoose')();
-      await require('./config/passport')();
-      await require('./config/express')();
-      console.log('finished init')
-    } catch (error) {
-      console.log('FUCK', error)
-      process.exit(0);
-    }
-  });
+module.exports = (() => new Promise(async (resolve, reject) => {
+  try {
+    console.log('initializing...')
+    await require('./config/mongoose').connect();
+    await require('./config/passport')();
+    await require('./config/express').listen();
+    console.log('finished init')
+    resolve();
+  } catch (error) {
+    console.log('FUCK', error)
+    reject();
+  }
+}));
 
-console.log('initializing...')
+if (require.main === module) {
+  module.exports().catch(error => process.exit(0));
+}
