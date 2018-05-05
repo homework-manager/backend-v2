@@ -16,7 +16,7 @@ describe('account', function () {
       })
   );
 
-  it('should fail at creating account (empty object)', () =>
+  it('should fail at creating account (empty json)', () =>
     createAccount({})
       .then(json => {
         assert.equal(typeof json, 'object');
