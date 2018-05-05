@@ -12,9 +12,7 @@ describe('session', function () {
   beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
   it('should fail at trying to log in (no json)', async () =>
-    fetch('/api/v1/session', {
-      method: 'POST'
-    })
+    fetch('/api/v1/session', { method: 'POST' })
       .then(res => res.json())
       .then(json => {
         assert.equal(typeof json, 'object');
