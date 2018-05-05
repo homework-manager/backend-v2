@@ -88,7 +88,7 @@ describe('account', function () {
   //  edit account
   // ################
 
-  it('should fail at editing an account (not logged in)', () =>
+  it('should fail at editing account (not logged in)', () =>
     fetch('/api/v1/account', {
       method: 'PATCH',
       headers: {
@@ -104,7 +104,7 @@ describe('account', function () {
       })
   );
 
-  it('should fail at editing an account (no json)', () =>
+  it('should fail at editing account (no json)', () =>
     fetchWithToken('/api/v1/account', { method: 'PATCH' })
       .then(res => res.json())
       .then(json => {
@@ -114,7 +114,7 @@ describe('account', function () {
       })
   );
 
-  it('should fail at editing an account (empty json)', () =>
+  it('should fail at editing account (empty json)', () =>
     fetchWithToken('/api/v1/account', {
       method: 'PATCH',
       headers: {
