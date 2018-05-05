@@ -4,6 +4,7 @@ module.exports = app => {
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
+    handleUnauthorized,
     handleError,
     handleForbidden } = require('../../utils');
   const { regexps } = require('../../config.js');
@@ -19,7 +20,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, groups });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -40,7 +42,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group: newGroup });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -61,7 +64,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group: newGroup });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -96,7 +100,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -129,7 +134,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.patch(
@@ -152,7 +158,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, group });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.get(
@@ -170,7 +177,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, members: membersInfo });
-    }
+    },
+    handleUnauthorized()
   );
 
 };
