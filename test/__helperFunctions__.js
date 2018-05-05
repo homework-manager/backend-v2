@@ -32,15 +32,17 @@ const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS_
 // generic stuff
 // #################
 
-const createUsingAPI = (name, method) => (dataOverride = {}) =>
-  fetch(`/api/v1/${name}`, {
+const createUsingAPI = (name, method, genToken = false) => async (dataOverride = {}) => {
+  return await fetch(`/api/v1/${name}`, {
     method,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': genToken ? await getRandomToken() : undefined
     },
     body: JSON.stringify({ ...getMockData(), ...dataOverride })
   })
     .then(res => res.json());
+};
 
 const createUsingSchema = schema => async (dataOverride = {}) => {
   const data = { ...getMockData(), ...dataOverride };
@@ -86,6 +88,8 @@ const createAccount = createUsingAPI('account', 'POST');
 
 const createAccountViaSchema = createUsingSchema(User);
 
+const editAccount = createUsingAPI('account', 'PATCH', true);
+
 // #################
 //  group stuff
 // #################
@@ -97,4 +101,5 @@ const createGroupViaSchema = createUsingSchema(Group);
 module.exports = {
   getMockData, fetch, fetchWithToken,
   logIn, getRandomToken,
-  createAccount, createAccountViaSchema };
+  createAccount, createAccountViaSchema,
+  editAccount };
