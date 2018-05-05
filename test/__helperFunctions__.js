@@ -1,5 +1,9 @@
 const User = require('../config/schemas/User');
 
+// #################
+//  mock data stuff
+// #################
+
 const getRandomUsername = () =>
   '000000000'.replace(/0/g, () => (~~(Math.random()*16)).toString(16));
 
@@ -17,7 +21,15 @@ const getMockData = () => ({
   joinName: getRandomUsername()
 });
 
+// #################
+//  make fetch func with server address
+// #################
+
 const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS__ + path, settings);
+
+// #################
+//  session stuff
+// #################
 
 const logIn = userData =>
   fetch('/api/v1/session', {
@@ -28,6 +40,20 @@ const logIn = userData =>
     body: JSON.stringify(userData)
   })
     .then(res => res.json());
+
+const getRandomToken = async () => {
+  const user = await createAccountViaSchema();
+
+  return await logIn({
+    username: user.username,
+    password: user.password
+  })
+    .then(json => json.token);
+};
+
+// #################
+//  account stuff
+// #################
 
 const createAccount = (dataOverride = {}) =>
   fetch('/api/v1/account', {
@@ -50,16 +76,6 @@ const createAccountViaSchema = async (dataOverride = {}) => {
   await user.save();
 
   return { ...data, ...user._doc };
-};
-
-const getRandomToken = async () => {
-  const user = await createAccountViaSchema();
-
-  return await logIn({
-    username: user.username,
-    password: user.password
-  })
-    .then(json => json.token);
 };
 
 module.exports = {
