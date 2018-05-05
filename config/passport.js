@@ -4,7 +4,6 @@ module.exports = async () => new Promise((resolve, reject) => {
   const { SESSION_SECRET } = require('../config.js');
 
   const passport = require('passport');
-  const LocalStrategy = require('passport-local').Strategy;
   const JwtStrategy = require('passport-jwt').Strategy;
   const { ExtractJwt } = require('passport-jwt');
 
