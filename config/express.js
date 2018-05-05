@@ -34,10 +34,11 @@ app.use((req, res, next) => {
   if (!req.timedout) next();
 });
 
-app.use((err, req, res, next) => {
-  if (err) res.status(500).json({ success: false, error: 'server' });
-  else next();
-});
+// app.use((err, req, res, next) => {
+//   console.log(err)
+//   if (err) res.status(500).json({ success: false, error: 'server' });
+//   else next();
+// });
 
 module.exports = {
   app,
