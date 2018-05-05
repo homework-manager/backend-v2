@@ -16,12 +16,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://homework-manager.ga');
-  res.header('Access-Control-Allow-Origin', 'https://beta.homework-manager.ga');
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  // this IS safe, as we are using JWT now
+  res.header('Access-Control-Allow-Origin', '*');
+  // res.header('Access-Control-Allow-Origin', 'https://homework-manager.ga');
+  // res.header('Access-Control-Allow-Origin', 'https://beta.homework-manager.ga');
+  // res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Credentials', 'true');
-  // don't do this, this is not safe
-  // res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   
   next();
