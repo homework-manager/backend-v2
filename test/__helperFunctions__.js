@@ -53,6 +53,13 @@ const getRandomToken = async () => {
     .then(json => json.token);
 };
 
+const getMockData = () => ({
+  username: getRandomUsername(),
+  email: getRandomEmail(),
+  fullname: getRandomUsername(),
+  password: getRandomPassword()
+});
+
 module.exports = {
   fetch, logIn, createAccount, createAccountViaSchema,
-  getRandomToken };
+  getRandomToken, getMockData };

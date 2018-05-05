@@ -1,7 +1,10 @@
 const assert = require('assert');
 const mongoose = require('mongoose');
 
-const { fetch, createAccount } = require('./__helperFunctions__');
+const {
+  fetch,
+  createAccount,
+  getMockData } = require('./__helperFunctions__');
 
 describe('account', function () {
   beforeEach('clear database', () => mongoose.connection.dropDatabase());
@@ -75,6 +78,14 @@ describe('account', function () {
         assert.equal(typeof json, 'object');
         assert.strictEqual(json.success, false);
         assert.strictEqual(json.error, 'fullnameIsInvalid');
+      })
+  );
+
+  it('should create a account', () =>
+    createAccount(getMockData())
+      .then(json => {
+        assert.equal(typeof json, 'object');
+        assert.strictEqual(json.success, true);
       })
   );
 });
