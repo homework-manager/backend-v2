@@ -3,6 +3,7 @@ module.exports = app => {
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
+    handleUnauthorized,
     handleError } = require('../../utils');
   const { regexps } = require('../../config.js');
 
@@ -13,7 +14,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, account: req.user.getPrivateData() });
-    }
+    },
+    handleUnauthorized()
   );
 
   app.post(
@@ -81,7 +83,8 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, profile });
-    }
+    },
+    handleUnauthorized()
   );
 
 };
