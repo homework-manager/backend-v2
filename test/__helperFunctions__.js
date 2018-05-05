@@ -85,5 +85,6 @@ const createGroup = createUsingAPI('group', 'POST');
 const createGroupViaSchema = createUsingSchema(Group);
 
 module.exports = {
-  fetch, logIn, createAccount, createAccountViaSchema,
-  getRandomToken, getMockData };
+  getMockData, fetch,
+  logIn, getRandomToken,
+  createAccount, createAccountViaSchema };
