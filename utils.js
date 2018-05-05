@@ -1,5 +1,6 @@
 const { SALT_LENGTH } = require('./config.js');
 
+const passport = require('passport');
 const bcrypt = require('bcrypt');
 
 function createHash (string) {
@@ -27,13 +28,17 @@ function handleForbidden () {
 }
 
 function authenticationMiddleware ()  {
-  return (req, res, next) => {
-    if (req.isAuthenticated()) {
-      next();
-    } else {
-      handleUnauthorized()(null, req, res, next);
-    }
-  };
+  // return (req, res, next) => {
+  //   if (req.isAuthenticated()) {
+  //     next();
+  //   } else {
+  //     handleUnauthorized()(null, req, res, next);
+  //   }
+  // };
+  return passport.authenticate('jwt', {
+    session: false,
+    failWithError: true
+  });
 }
 
 function dataNormalizationMiddleware () {

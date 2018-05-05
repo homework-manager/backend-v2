@@ -13,12 +13,12 @@ const app = express();
 let server;
 
 app.use(bodyParser.json());
-app.use(require('cookie-parser')());
-app.use(session({
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
+// app.use(require('cookie-parser')());
+// app.use(session({
+//   secret: SESSION_SECRET,
+//   resave: false,
+//   saveUninitialized: false
+// }));
 app.use(passport.initialize());
 app.use(passport.session());
 
