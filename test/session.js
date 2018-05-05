@@ -9,7 +9,6 @@ const {
   getRandomToken } = require('./__helperFunctions__');
 
 describe('session', function () {
-  beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
   it('should fail at trying to log in (no json)', async () =>
     fetch('/api/v1/session', { method: 'POST' })
@@ -119,4 +118,5 @@ describe('session', function () {
         assert.strictEqual(json.success, true);
       });
   });
+
 });

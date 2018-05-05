@@ -6,7 +6,6 @@ const {
   createAccount } = require('./__helperFunctions__');
 
 describe('account', function () {
-  beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
   it('should fail at creating account (no json)', () =>
     fetch('/api/v1/account', { method: 'POST' })
@@ -79,4 +78,5 @@ describe('account', function () {
         assert.strictEqual(json.success, true);
       })
   );
+
 });

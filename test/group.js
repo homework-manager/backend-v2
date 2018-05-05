@@ -7,7 +7,6 @@ const {
   getMockData } = require('./__helperFunctions__');
 
 describe('group', function () {
-  beforeEach('clear database', () => mongoose.connection.dropDatabase());
 
   it('should fail at creating group (no json)', () =>
     fetchWithToken('/api/v1/group', { method: 'POST' })
@@ -34,4 +33,5 @@ describe('group', function () {
         assert.strictEqual(/IsRequired/.test(json.error), true);
       })
   );
+
 });
