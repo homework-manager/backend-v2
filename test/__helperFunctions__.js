@@ -29,7 +29,7 @@ const getMockData = () => ({
 const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS__ + path, settings);
 
 // #################
-// generic stuff
+//  generic stuff
 // #################
 
 const createUsingAPI = (name, method, genToken = false) => async (dataOverride = {}) => {
