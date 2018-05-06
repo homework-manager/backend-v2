@@ -75,13 +75,28 @@ describe('account', function () {
         })
     );
 
-    it('should create a account', () =>
-      createAccount()
-        .then(json => {
+    it('should create a account', async () => {
+      const data = getMockData();
+
+      return await createAccount(data)
+        .then(async json => {
           assert.strictEqual(typeof json, 'object');
           assert.strictEqual(json.success, true);
+          assert.strictEqual(json.profile.username, data.username);
+          assert.strictEqual(json.profile.email, data.email);
+          assert.strictEqual(json.profile.fullname, data.fullname);
+            
+          const userViaUsername = await User.findOne({ username: data.username });
+          assert.strictEqual(typeof userViaUsername, 'object');
+          assert.strictEqual(userViaUsername.email, data.email);
+          assert.strictEqual(userViaUsername.fullname, data.fullname);
+
+          const userViaId = await User.findOne({ _id: json.profile._id });
+          assert.strictEqual(typeof userViaId, 'object');
+          assert.strictEqual(userViaId.email, data.email);
+          assert.strictEqual(userViaId.fullname, data.fullname);
         })
-    );
+    });
 
   });
   
