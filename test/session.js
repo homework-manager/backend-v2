@@ -94,7 +94,7 @@ describe('session', function () {
 
   describe('get session (check if logged in)', function () {
     
-    it('should fail at getting session (check if token valid)', () =>
+    it('should fail at getting session', () =>
       fetch('/api/v1/session', {
         method: 'GET',
         headers: {
@@ -110,7 +110,7 @@ describe('session', function () {
         })
     );
 
-    it('should get session (check if token valid)', async () => {
+    it('should get session', async () => {
       return await fetch('/api/v1/session', {
         method: 'GET',
         headers: {
