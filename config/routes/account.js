@@ -22,7 +22,11 @@ module.exports = app => {
     '/api/v1/account',
     dataNormalizationMiddleware(),
     async (req, res) => {
-      const newUser = new User(req.body);
+      const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        fullname: req.body.fullname
+      });
 
       if (!req.body.password) {
         return res
