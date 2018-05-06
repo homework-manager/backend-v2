@@ -5,6 +5,7 @@ const {
   getMockData,
   editAccount,
   createAccount } = require('./__helperFunctions__');
+const User = require('../config/schemas/User');
 
 describe('account', function () {
 
@@ -154,6 +155,29 @@ describe('account', function () {
           assert.strictEqual(json.error, 'fullnameIsInvalid');
         })
     );
+
+    it('should edit account', async () => {
+      const data = getMockData();
+
+      return await editAccount(data)
+        .then(async json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, true);
+          assert.strictEqual(json.profile.username, data.username);
+          assert.strictEqual(json.profile.email, data.email);
+          assert.strictEqual(json.profile.fullname, data.fullname);
+          
+          const userViaUsername = await User.findOne({ username: data.username });
+          assert.strictEqual(typeof userViaUsername, 'object');
+          assert.strictEqual(userViaUsername.email, data.email);
+          assert.strictEqual(userViaUsername.fullname, data.fullname);
+
+          const userViaId = await User.findOne({ _id: json.profile._id });
+          assert.strictEqual(typeof userViaId, 'object');
+          assert.strictEqual(userViaId.email, data.email);
+          assert.strictEqual(userViaId.fullname, data.fullname);
+        })
+    });
 
   });
 
