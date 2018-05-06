@@ -48,7 +48,7 @@ module.exports = app => {
 
       res
         .status(200)
-        .json({ success: true });
+        .json({ success: true, profile: newUser.getPrivateData() });
     }
   );
 
