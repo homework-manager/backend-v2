@@ -2,12 +2,68 @@ const assert = require('assert');
 
 const {
   fetch, fetchWithToken,
-  getMockData,
-  editAccount,
+  getMockData, logIn,
+  editAccount, createAccountViaSchema,
   createAccount } = require('./__helperFunctions__');
 const User = require('../config/schemas/User');
 
 describe('account', function () {
+
+  // ################
+  //  get account
+  // ################
+
+  describe('get account', function () {
+
+    it('should fail at getting account (no token)', () =>
+      fetch('/api/v1/account', { method: 'GET' })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, false);
+          assert.strictEqual(json.error, 'unauthorized');
+        })
+    );
+
+    it('should fail at getting account (fake/expired token)', () =>
+      fetch('/api/v1/account', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'not a token, that\'s for sure'
+        }
+      })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, false);
+          assert.strictEqual(json.error, 'unauthorized');
+        })
+    );
+
+    it('should get account', async () => {
+      const data = getMockData();
+
+      const account = await createAccountViaSchema(data);
+      const token = (await logIn(data)).token;
+
+      return await fetch('/api/v1/account', {
+        method: 'GET',
+        headers: {
+          'Authorization': token
+        }
+      })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, true);
+          assert.equal(json.profile._id, account._id);
+          assert.strictEqual(json.profile.username, data.username);
+          assert.strictEqual(json.profile.email, data.email);
+          assert.strictEqual(json.profile.fullname, data.fullname);
+        })
+    });
+
+  });
 
   // ################
   //  create account
