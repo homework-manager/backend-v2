@@ -59,7 +59,7 @@ module.exports = app => {
     async (req, res) => {
       const { username, fullname, email } = req.body;
       
-      let profile
+      let profile;
 
       try {
         await User.updateOne(
