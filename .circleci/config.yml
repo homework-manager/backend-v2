@@ -16,6 +16,10 @@ jobs:
 
     working_directory: ~/repo
 
+    machine:
+      environment:
+          MOCHA_FILE: "$CIRCLE_TEST_REPORTS/test-results.xml"
+
     steps:
       - checkout
 
