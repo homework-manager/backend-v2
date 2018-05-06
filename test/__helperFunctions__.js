@@ -94,7 +94,7 @@ const editAccount = createUsingAPI('account', 'PATCH', true);
 //  group stuff
 // #################
 
-const createGroup = createUsingAPI('group', 'POST');
+const createGroup = createUsingAPI('group', 'POST', true);
 
 const createGroupViaSchema = createUsingSchema(Group);
 
