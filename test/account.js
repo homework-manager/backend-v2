@@ -122,7 +122,7 @@ describe('account', function () {
         })
     );
 
-    it('should fail at creating account (invalid full name)', () =>
+    it('should fail at creating account (invalid fullname)', () =>
       createAccount({ fullname: Array(50).fill('bullshit').join('') })
         .then(json => {
           assert.strictEqual(typeof json, 'object');
