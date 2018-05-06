@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=development mocha --recursive -t 10000",
+    "test": "NODE_ENV=development mocha --reporter mocha-circleci-reporter --recursive -t 10000",
     "start": "node index.js",
     "dev": "NODE_ENV=development nodemon"
   },
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "mocha": "^5.1.1",
+    "mocha-circleci-reporter": "0.0.2",
     "mongodb": "^3.0.7",
     "mongodb-memory-server": "^1.7.3",
     "node-fetch": "^2.1.2",

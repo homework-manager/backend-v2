@@ -16,6 +16,9 @@ jobs:
 
     working_directory: ~/repo
 
+    environment:
+      MOCHA_FILE: "test-results/mocha/results.xml"
+
     steps:
       - checkout
 
@@ -35,5 +38,9 @@ jobs:
         
       # run tests!
       - run: npm test
+
+      - store_test_results:
+          path: test-results
+
 
 

@@ -13,7 +13,7 @@ module.exports = app => {
     (req, res) => {
       res
         .status(200)
-        .json({ success: true, account: req.user.getPrivateData() });
+        .json({ success: true, profile: req.user.getPrivateData() });
     },
     handleUnauthorized()
   );
@@ -48,7 +48,7 @@ module.exports = app => {
 
       res
         .status(200)
-        .json({ success: true });
+        .json({ success: true, profile: newUser.getPrivateData() });
     }
   );
 
@@ -70,11 +70,7 @@ module.exports = app => {
 
         profile = (await User.findOne({ _id: req.user._id })).getPrivateData();
 
-        console.log(profile)
-
-
       } catch (error) {
-        // console.log(error)
         return handleError(error, req, res);
       }
 
