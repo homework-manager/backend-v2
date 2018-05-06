@@ -70,11 +70,7 @@ module.exports = app => {
 
         profile = (await User.findOne({ _id: req.user._id })).getPrivateData();
 
-        console.log(profile)
-
-
       } catch (error) {
-        // console.log(error)
         return handleError(error, req, res);
       }
 
