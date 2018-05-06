@@ -17,7 +17,7 @@ jobs:
     working_directory: ~/repo
 
     environment:
-      MOCHA_FILE: "$CIRCLE_TEST_REPORTS/test-results.xml"
+      MOCHA_FILE: "test-results/mocha/results.xml"
 
     steps:
       - checkout
@@ -40,7 +40,7 @@ jobs:
       - run: npm test
 
       - store_test_results
-          path: $CIRCLE_TEST_REPORTS
+          path: test-results
 
 
 
