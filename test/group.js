@@ -34,4 +34,22 @@ describe('group', function () {
       })
   );
 
+  it('should fail at creating group (invalid name)', () =>
+    createGroup({ name: Array(50).fill('bullshit').join('') })
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(json.error, 'nameIsInvalid');
+      })
+  );
+
+  it('should fail at creating group (invalid joinName)', () =>
+    createGroup({ joinName: Array(50).fill('bullshit').join('') })
+      .then(json => {
+        assert.strictEqual(typeof json, 'object');
+        assert.strictEqual(json.success, false);
+        assert.strictEqual(json.error, 'joinNameIsInvalid');
+      })
+  );
+
 });
