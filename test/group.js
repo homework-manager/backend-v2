@@ -4,7 +4,9 @@ const mongoose = require('mongoose');
 const {
   fetch, fetchWithToken,
   createGroup,
+  createAccountViaSchema, logIn,
   getMockData } = require('./__helperFunctions__');
+const Group = require('../config/schemas/Group');
 
 describe('group', function () {
 
@@ -53,6 +55,38 @@ describe('group', function () {
           assert.strictEqual(json.error, 'joinNameIsInvalid');
         })
     );
+
+    it('should create group', async () => {
+      const data = getMockData();
+
+      const account = await createAccountViaSchema({
+        username: data.username,
+        email: data.email,
+        password: data.password
+      });
+      const token = (await logIn(data)).token;
+
+      return await createGroup(data, token)
+        .then(async json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, true);
+          assert.strictEqual(json.group.name, data.name);
+          assert.strictEqual(json.group.joinName, data.joinName);
+          assert.equal(json.group.members[0].id, account._id);
+
+          const groupViaJoinName = await Group.findOne({ joinName: data.joinName });
+          assert.strictEqual(typeof groupViaJoinName, 'object');
+          assert.strictEqual(groupViaJoinName.name, data.name);
+          assert.equal(groupViaJoinName._id, json.group._id);
+          assert.equal(account._id, String(groupViaJoinName.members[0].id));
+
+          const groupViaId = await Group.findOne({ _id: json.group._id });
+          assert.strictEqual(typeof groupViaId, 'object');
+          assert.strictEqual(groupViaId.name, data.name);
+          assert.strictEqual(groupViaId.joinName, data.joinName);
+          assert.equal(account._id, String(groupViaId.members[0].id));
+        });
+    });
 
   });
 
