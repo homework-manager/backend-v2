@@ -13,7 +13,7 @@ module.exports = app => {
     (req, res) => {
       res
         .status(200)
-        .json({ success: true, account: req.user.getPrivateData() });
+        .json({ success: true, profile: req.user.getPrivateData() });
     },
     handleUnauthorized()
   );
