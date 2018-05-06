@@ -105,5 +105,5 @@ const createGroupViaSchema = createUsingSchema(Group);
 module.exports = {
   getMockData, fetch, fetchWithToken,
   logIn, getRandomToken,
-  createAccount, createAccountViaSchema,
-  editAccount };
+  createAccount, createAccountViaSchema, editAccount,
+  createGroup, createGroupViaSchema };
