@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const {
   fetch, fetchWithToken,
-  createGroup,
+  createGroup, createGroupViaSchema,
   createAccountViaSchema, logIn,
   getMockData } = require('./__helperFunctions__');
 const Group = require('../config/schemas/Group');
@@ -86,6 +86,42 @@ describe('group', function () {
           assert.strictEqual(groupViaId.joinName, data.joinName);
           assert.equal(account._id, String(groupViaId.members[0].id));
         });
+    });
+
+  });
+
+  describe('join group', function () {
+
+    describe('via joinName', function () {
+
+      it('should fail at joining a group (no group with that joinName)', () =>
+        fetchWithToken('/api/v1/group/join/noGroupWithJoinName', { method: 'POST' })
+          .then(res => res.json())
+          .then(json => {
+            assert.strictEqual(typeof json, 'object');
+            assert.strictEqual(json.success, false);
+            assert.strictEqual(json.error, 'groupNotFound');
+          })
+      );
+
+      it('should join group', async () => {
+        const group = await createGroupViaSchema();
+
+        return await fetchWithToken(`/api/v1/group/join/${group.joinName}`, 
+          { method: 'POST' }
+        )
+          .then(res => res.json())
+          .then(json => {
+            console.log(json)
+            assert.strictEqual(typeof json, 'object');
+            assert.strictEqual(json.success, true);
+            
+            assert.equal(json.group._id, group._id);
+            assert.strictEqual(json.group.name, group.name);
+            assert.strictEqual(json.group.joinName, group.joinName);
+          });
+      });
+
     });
 
   });
