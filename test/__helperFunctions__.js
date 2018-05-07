@@ -29,19 +29,25 @@ const getMockData = () => ({
 const fetch = (path, settings) => require('node-fetch')(global.__SERVER_ADDRESS__ + path, settings);
 
 // #################
-// generic stuff
+//  generic stuff
 // #################
 
-const createUsingAPI = (name, method, genToken = false) => async (dataOverride = {}) => {
-  return await fetch(`/api/v1/${name}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': genToken ? await getRandomToken() : undefined
-    },
-    body: JSON.stringify({ ...getMockData(), ...dataOverride })
-  })
-    .then(res => res.json());
+const createUsingAPI = (name, method, genToken = false) =>
+  async (dataOverride = {}, tokenOverride = undefined) => {
+    return await fetch(`/api/v1/${name}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+          tokenOverride
+            ? tokenOverride
+            : (genToken
+                ? await getRandomToken()
+                : undefined)
+      },
+      body: JSON.stringify({ ...getMockData(), ...dataOverride })
+    })
+      .then(res => res.json());
 };
 
 const createUsingSchema = schema => async (dataOverride = {}) => {
@@ -94,12 +100,16 @@ const editAccount = createUsingAPI('account', 'PATCH', true);
 //  group stuff
 // #################
 
-const createGroup = createUsingAPI('group', 'POST');
+const createGroup = createUsingAPI('group', 'POST', true);
 
 const createGroupViaSchema = createUsingSchema(Group);
+
+// #################
+//  export everything
+// #################
 
 module.exports = {
   getMockData, fetch, fetchWithToken,
   logIn, getRandomToken,
-  createAccount, createAccountViaSchema,
-  editAccount };
+  createAccount, createAccountViaSchema, editAccount,
+  createGroup, createGroupViaSchema };

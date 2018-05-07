@@ -29,7 +29,10 @@ module.exports = app => {
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     async (req, res) => {
-      const newGroup = new Group(req.body);
+      const newGroup = new Group({
+        name: req.body.name,
+        joinName: req.body.joinName
+      });
 
       newGroup.addMember(req.user._id, [{ admin: true }]);
 
