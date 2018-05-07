@@ -54,7 +54,13 @@ module.exports = app => {
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     async (req, res) => {
-      const group = Group.findOne({ joinName: req.params.joinName });
+      const group = await Group.findOne({ joinName: req.params.joinName });
+
+      if (!group) {
+        return res
+          .status(404)
+          .json({ success: false, error: 'groupNotFound'});
+      }
 
       group.addMember(req.user._id);
 
@@ -66,7 +72,7 @@ module.exports = app => {
 
       res
         .status(200)
-        .json({ success: true, group: newGroup });
+        .json({ success: true, group });
     },
     handleUnauthorized()
   );
