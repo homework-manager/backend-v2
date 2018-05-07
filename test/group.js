@@ -112,10 +112,9 @@ describe('group', function () {
         )
           .then(res => res.json())
           .then(json => {
-            console.log(json)
             assert.strictEqual(typeof json, 'object');
             assert.strictEqual(json.success, true);
-            
+
             assert.equal(json.group._id, group._id);
             assert.strictEqual(json.group.name, group.name);
             assert.strictEqual(json.group.joinName, group.joinName);
