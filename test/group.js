@@ -272,6 +272,36 @@ describe('group', function () {
   // #########################################################
   // #########################################################
   // #########################################################
+
+  describe('get members from a group', function () {
+
+    it('should get members from a group', async () => {
+      const user = await createAccountViaSchema();
+
+      const group = await createGroupViaSchema({
+        members: [ { id: user._id, roles: [ { admin: true } ] } ]
+      });
+
+      return await fetch(`/api/v1/group/${group._id}/members`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': (await logIn(user)).token }
+      })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, true);
+
+          assert.equal(json.members[0]._id, user._id);
+          assert.strictEqual(json.members[0].username, user.username);
+          assert.strictEqual(json.members[0].fullname, user.fullname);
+        });
+    });
+
+  });
+
+  // #########################################################
+  // #########################################################
+  // #########################################################
   
   describe('remove admin from user in a group', function () {
 
