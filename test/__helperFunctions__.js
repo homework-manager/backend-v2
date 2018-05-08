@@ -53,7 +53,7 @@ const createUsingAPI = (name, method, genToken = false) =>
 const createUsingSchema = schema => async (dataOverride = {}) => {
   const data = { ...getMockData(), ...dataOverride };
 
-  const thing = new User(data);
+  const thing = new schema(data);
   if (thing.setPassword) thing.setPassword(data.password);
   await thing.save();
 
