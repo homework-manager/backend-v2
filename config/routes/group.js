@@ -9,12 +9,26 @@ module.exports = app => {
     handleForbidden } = require('../../utils');
   const { regexps } = require('../../config.js');
 
+  function checkIfGroupExistsMiddleware () {
+    return async (req, res, next) => {
+      req._group = req._group || await Group.findById(req.params.groupId);
+
+      if (!req._group) {
+        return res
+          .status(404)
+          .json({ success: false, error: 'groupNotFound' });
+      }
+
+      next();
+    };  
+  }
+
   app.get(
     '/api/v1/groups',
     authenticationMiddleware(),
     async (req, res) => {
       const groups = await Group.find({
-        members: {$elemMatch: {id: req.user._id}}
+        members: { $elemMatch: { id: req.user._id } }
       });
 
       res
@@ -59,7 +73,7 @@ module.exports = app => {
       if (!group) {
         return res
           .status(404)
-          .json({ success: false, error: 'groupNotFound'});
+          .json({ success: false, error: 'groupNotFound' });
       }
 
       group.addMember(req.user._id);
@@ -81,8 +95,9 @@ module.exports = app => {
     '/api/v1/group/:groupId/makeMemberAdmin',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
+    checkIfGroupExistsMiddleware(),
     async (req, res) => {
-      const group = Group.findOne({ _id: req.params.groupId });
+      const group = req._group || await Group.findById(req.params.groupId);
 
       if (group.userIsAdmin(req.user._id)) {
         const member = group.members.find(member => (
@@ -117,8 +132,9 @@ module.exports = app => {
     '/api/v1/group/:groupId/removeAdminFromMember',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
+    checkIfGroupExistsMiddleware(),
     async (req, res) => {
-      const group = Group.findOne({ _id: req.params.groupId });
+      const group = req._group || await Group.findById(req.params.groupId);
 
       if (group.userIsAdmin(req.user._id)) {
         const member = group.members.find(member => (
@@ -151,11 +167,14 @@ module.exports = app => {
     '/api/v1/group/:groupId',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
+    checkIfGroupExistsMiddleware(),
     async (req, res) => {
       const { name, joinName } = req.body;
       
+      let group;
+
       try {
-        const group = await Group.findOneAndUpdate(
+        group = await Group.findOneAndUpdate(
           { _id: req.params.groupId },
           { name, joinName },
           { new: true, runValidators: true, context: 'query' }
@@ -174,8 +193,9 @@ module.exports = app => {
   app.get(
     '/api/v1/group/:groupId/members',
     authenticationMiddleware(),
+    checkIfGroupExistsMiddleware(),
     async (req, res) => {
-      const group = await Group.findOne({ _id: req.params.groupId });
+      const group = req._group || await Group.findOne({ joinName: req.params.joinName });
 
       const members = await User.find({
         _id: group.members.map(member => member.id)
