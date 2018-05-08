@@ -9,8 +9,6 @@ module.exports = app => {
     handleForbidden } = require('../../utils');
   const { regexps } = require('../../config.js');
 
-  async function groupE
-
   function groupExistsMiddleware (groupIdField) {
     return async (req, res, next) => {
       req.group = req.group || await Group.findOne({ _id: req.body[groupIdField] });
