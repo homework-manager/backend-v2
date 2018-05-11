@@ -22,8 +22,9 @@ app.use((req, res, next) => {
   // res.header('Access-Control-Allow-Origin', 'https://beta.homework-manager.ga');
   // res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+
   next();
 });
 
@@ -48,7 +49,7 @@ module.exports = {
   },
   listen: (PORT_OVERRIDE, log = true) => new Promise((resolve, reject) => {
     const PORT = PORT_OVERRIDE !== undefined ? PORT_OVERRIDE : PORT_ENV;
-    if (log) app.use(require('morgan')('combined'));
+    // if (log) app.use(require('morgan')('combined'));
     server = app.listen(PORT, () => {
       if (log) console.log(`listening @ port ${server.address().port}`)
       resolve(server);

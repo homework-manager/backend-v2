@@ -101,7 +101,7 @@ module.exports = app => {
 
       if (group.userIsAdmin(req.user._id)) {
         const member = group.members.find(member => (
-          req.body.memberId === member.id
+          member.id.equals(req.body.memberId)
         ));
 
         if (member) {
@@ -138,8 +138,14 @@ module.exports = app => {
 
       if (group.userIsAdmin(req.user._id)) {
         const member = group.members.find(member => (
-          req.body.memberId === member.id
+          member.id.equals(req.body.memberId)
         ));
+        
+        if (member.id.equals(req.user._id)) {
+          return res
+            .status(400)
+            .json({ success: false, error: 'cannotRemoveAdminFromYourself' });
+        }
 
         if (member) {
           member.removeAdmin();

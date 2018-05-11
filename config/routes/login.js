@@ -35,7 +35,7 @@ module.exports = app => {
       if (!password) {
         return res
           .status(400)
-          .json({ success: false, error: 'passwordIsRequired '});
+          .json({ success: false, error: 'passwordIsRequired' });
       }
 
       const user = await User.findOne({ username });
