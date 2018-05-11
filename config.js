@@ -11,7 +11,7 @@ module.exports = (function () {
 
     homework: {
       title: /^.{1,200}$/,
-      description: /^.{1,5000}$/
+      description: /^.{0,5000}$/
     },
 
     group: {

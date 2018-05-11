@@ -9,15 +9,56 @@ module.exports = app => {
     handleForbidden } = require('../../utils');
   const { regexps } = require('../../config.js');
 
-  function groupExistsMiddleware (groupIdField) {
-    return async (req, res, next) => {
-      req.group = req.group || await Group.findOne({ _id: req.body[groupIdField] });
+  async function getHomework (req, res) {
+    const homeworkId =
+      req.body._id
+        ? req.body._id
+        : req.params.homeworkId;
+    
+    if (!homeworkId) return undefined;
 
-      if (!req.group) {
-        return res
-          .status(400)
-          .json({ success: false, error: 'groupNotFound' });
-      }
+    const homework = await Homework.findById(homeworkId);
+
+    if (!homework) {
+      res
+        .status(404)
+        .json({ success: false, error: 'homeworkNotFound' });
+      return false;
+    }
+
+    return homework;
+  }
+
+  async function getGroup (req, res) {
+    let groupId =
+      req.params.groupId
+        ? req.params.groupId
+        : req.body.groupId;
+
+    const homework = await getHomework(req, res);
+
+    if (homework === false) return false;
+    if (homework) groupId = homework.groupId;
+
+    const group = await Group.findById(groupId);
+
+    if (!group) {
+      res
+        .status(400)
+        .json({ success: false, error: 'groupNotFound' });
+      return false;
+    }
+
+    return group;
+  }
+
+  function groupExistsMiddleware () {
+    return async (req, res, next) => {
+      const group = await getGroup(req, res);
+
+      if (!group) return;
+
+      req.__group = req.__group || group;
 
       next();
     }
@@ -25,21 +66,25 @@ module.exports = app => {
 
   function checkPermissionMiddleware (role) {
     return async (req, res, next) => {
-      req.group = req.group || await Group.findOne({ _id: req.body[groupIdField] });
+      const group = await getGroup(req, res);
 
-      let hasPermission
+      if (!group) return;
+
+      req.__group = req.__group || group;
+
+      let hasPermission;
 
       switch (role) {
         case 'member':
-          hasPermission = req.group.userIsMember(req.user._id);
+          hasPermission = req.__group.userIsMember(req.user._id);
           break;
         case 'admin':
-          hasPermission = req.group.userIsAdmin(req.user._id);
+          hasPermission = req.__group.userIsAdmin(req.user._id);
           break;
       }
 
       if (!hasPermission) {
-        return handleForbidden(req, res);
+        return handleForbidden()(req, res);
       }
 
       next();
@@ -59,7 +104,7 @@ module.exports = app => {
     authenticationMiddleware(),
     async (req, res) => {
       const groups = await Group.find({
-        members: {$elemMatch: {id: req.user._id}}
+        members: { $elemMatch: { id: req.user._id } }
       });
 
       const homeworks = await Homework.find({
@@ -77,7 +122,7 @@ module.exports = app => {
   app.get(
     '/api/v1/group/:groupId/homeworks',
     authenticationMiddleware(),
-    groupExistsMiddleware('groupId'),
+    groupExistsMiddleware(),
     checkPermissionMiddleware('member'),
     async (req, res) => {
       const homeworks = await Homework.find({ groupId: req.params.groupId });
@@ -93,7 +138,7 @@ module.exports = app => {
     '/api/v1/homework',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
-    groupExistsMiddleware('groupId'),
+    groupExistsMiddleware(),
     checkPermissionMiddleware('admin'),
     async (req, res) => {
       const newHomework = new Homework({
@@ -103,7 +148,7 @@ module.exports = app => {
       });
 
       try {
-        await newGroup.save();
+        await newHomework.save();
       } catch (error) {
         return handleError(error, req, res);
       }
@@ -119,22 +164,91 @@ module.exports = app => {
     '/api/v1/homework/:homeworkId',
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
-    groupExistsMiddleware('groupId'),
+    groupExistsMiddleware(),
     checkPermissionMiddleware('admin'),
     async (req, res) => {
-      try {
-        let homework = await Homework.findOne({
-          _id: req.params.homeworkId
-        });
+      let homework;
 
-        homework = await Homework.findOneAndUpdate(
-          { _id: req.params.homeworkId },
-          { ...homework, ...getValidHomeworkFields(req.body) },
+      try {
+        homework = await Homework.findById(req.params.homeworkId);
+
+        if (!homework) {
+          return res
+            .status(404)
+            .json({ success: false, error: 'homeworkNotFound' });
+        }
+
+        const homeworkData = {
+          ...homework._doc, ...getValidHomeworkFields(req.body)
+        };
+        
+        delete homeworkData._id;
+
+        homework = await Homework.findByIdAndUpdate(
+          req.params.homeworkId,
+          homeworkData,
           { new: true, runValidators: true, context: 'query' }
         );
       } catch (error) {
         return handleError(error, req, res);
       }
+
+      res
+        .status(200)
+        .json({ success: true, homework });
+    }
+  );
+
+  app.delete(
+    '/api/v1/homework/:homeworkId',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    groupExistsMiddleware(),
+    checkPermissionMiddleware('admin'),
+    async (req, res) => {
+      await Homework.remove({ _id: req.params.homeworkId });
+
+      res
+        .status(200)
+        .json({ success: true });
+    }
+  );
+
+  app.post(
+    '/api/v1/homework/:homeworkId/done',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    groupExistsMiddleware(),
+    checkPermissionMiddleware('member'),
+    async (req, res) => {
+      const homework = await getHomework(req, res);
+
+      if (!homework) return;
+
+      homework.markUserAsDone(req.user._id);
+
+      await homework.save();
+
+      res
+        .status(200)
+        .json({ success: true, homework });
+    }
+  );
+
+  app.post(
+    '/api/v1/homework/:homeworkId/notDone',
+    authenticationMiddleware(),
+    dataNormalizationMiddleware(),
+    groupExistsMiddleware(),
+    checkPermissionMiddleware('member'),
+    async (req, res) => {
+      const homework = await getHomework(req, res);
+
+      if (!homework) return;
+
+      homework.markUserAsNotDone(req.user._id);
+
+      await homework.save();
 
       res
         .status(200)
