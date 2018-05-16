@@ -7,10 +7,12 @@ const { regexps } = require('../../config');
 
 const userSchema = mongoose.Schema({
   username: { type: String, required: true, unique: true, validate: regexps.username },
-  fullname: { type: String, validate: regexps.fullname },
+  fullname: { type: String },
   passwordHash: { type: String },
   email: { type: String, required: true, unique: true, validate: regexps.email }
 }, { timestamps: true });
+
+userSchema.path('fullname').validate(value => (!value) || (value.length <= 200));
 
 userSchema.methods.getPublicData = function () {
   return {

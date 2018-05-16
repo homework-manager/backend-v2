@@ -5,7 +5,7 @@ module.exports = (function () {
 
   config.regexps = {
     username: /^[A-Z0-9_.]{1,16}$/i,
-    fullname: /^.{1,200}$/,
+    // fullname: /^$|^.{0,200}$/,
     // password: /^.{6,}$/,
     email: /^[A-Z0-9._%+-]{1,32}@[A-Z0-9._]{4,32}$/i,
 
