@@ -1,7 +1,7 @@
 module.exports = app => {
   const User = require('../schemas/User');
   const Group = require('../schemas/Group');
-  const HomeworkTag = require('../schemas/HomeworkTag');
+  // const HomeworkTag = require('../schemas/HomeworkTag');
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
