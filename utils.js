@@ -71,12 +71,6 @@ function handleError (error, req, res) {
       return res
         .status(400)
         .json({ success: false, error: `${key}IsRequired` });
-    case 'user defined':
-      if (error.name === 'ValidationError') {
-        return res
-          .status(400)
-          .json({ success: false, error: `${key}IsInvalid` });
-      }
     default:
       if (errorObj.properties &&
           errorObj.properties.validator instanceof RegExp) {
