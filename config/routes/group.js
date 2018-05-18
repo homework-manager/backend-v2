@@ -7,12 +7,17 @@ module.exports = app => {
     dataNormalizationMiddleware,
     handleUnauthorized,
     handleError,
-    handleForbidden } = require('../../utils');
+    handleForbidden,
+    checkPermissionMiddleware: checkPermissionMiddle } = require('../../utils');
   const { regexps } = require('../../config.js');
+
+  function getGroup (req, res) {
+    return Group.findById(req.params.groupId);
+  }
 
   function checkIfGroupExistsMiddleware () {
     return async (req, res, next) => {
-      req._group = req._group || await Group.findById(req.params.groupId);
+      req._group = req._group || await getGroup(req, res);
 
       if (!req._group) {
         return res
@@ -21,8 +26,10 @@ module.exports = app => {
       }
 
       next();
-    };  
+    };
   }
+
+  const checkPermissionMiddleware = role => checkPermissionMiddle(role, getGroup);
 
   app.get(
     '/api/v1/groups',
@@ -97,23 +104,20 @@ module.exports = app => {
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     checkIfGroupExistsMiddleware(),
+    checkPermissionMiddleware('admin'),
     async (req, res) => {
       const group = req._group || await Group.findById(req.params.groupId);
 
-      if (group.userIsAdmin(req.user._id)) {
-        const member = group.members.find(member => (
-          member.id.equals(req.body.memberId)
-        ));
+      const member = group.members.find(member => (
+        member.id.equals(req.body.memberId)
+      ));
 
-        if (member) {
-          member.addAdmin();
-        } else {
-          return res
-            .status(404)
-            .json({ success: false, error: 'memberDoesntExist' });
-        }
+      if (member) {
+        member.addAdmin();
       } else {
-        return handleForbidden(req, res);
+        return res
+          .status(404)
+          .json({ success: false, error: 'memberDoesntExist' });
       }
 
       try {
@@ -134,28 +138,27 @@ module.exports = app => {
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     checkIfGroupExistsMiddleware(),
+    checkPermissionMiddleware('admin'),
     async (req, res) => {
       const group = req._group || await Group.findById(req.params.groupId);
 
-      if (group.userIsAdmin(req.user._id)) {
-        const member = group.members.find(member => (
-          member.id.equals(req.body.memberId)
-        ));
+      const member = group.members.find(member => (
+        member.id.equals(req.body.memberId)
+      ));
 
-        if (!member) {
-          return res
-            .status(404)
-            .json({ success: false, error: 'memberDoesntExist' });
-        }
-        
-        if (member.id.equals(req.user._id)) {
-          return res
-            .status(400)
-            .json({ success: false, error: 'cannotRemoveAdminFromYourself' });
-        }
-
-        member.removeAdmin();
+      if (!member) {
+        return res
+          .status(404)
+          .json({ success: false, error: 'memberDoesntExist' });
       }
+      
+      if (member.id.equals(req.user._id)) {
+        return res
+          .status(400)
+          .json({ success: false, error: 'cannotRemoveAdminFromYourself' });
+      }
+
+      member.removeAdmin();
 
       try {
         await group.save();
@@ -175,6 +178,7 @@ module.exports = app => {
     authenticationMiddleware(),
     dataNormalizationMiddleware(),
     checkIfGroupExistsMiddleware(),
+    checkPermissionMiddleware('admin'),
     async (req, res) => {
       const { name, joinName } = req.body;
       
@@ -237,6 +241,7 @@ module.exports = app => {
     '/api/v1/group/:groupId/homeworkTag',
     authenticationMiddleware(),
     checkIfGroupExistsMiddleware(),
+    checkPermissionMiddleware('admin'),
     async (req, res) => {
       const group = req._group || await Group.findOne({ joinName: req.params.joinName });
 

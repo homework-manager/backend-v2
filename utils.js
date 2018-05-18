@@ -93,7 +93,32 @@ function handleError (error, req, res) {
   }
 }
 
+function checkPermissionMiddleware (role, getGroup) {
+  return async (req, res, next) => {
+    req._group = req._group || await getGroup(req, res);
+
+    if (!req._group) return;
+
+    let hasPermission;
+
+    switch (role) {
+      case 'member':
+        hasPermission = req._group.userIsMember(req.user._id);
+        break;
+      case 'admin':
+        hasPermission = req._group.userIsAdmin(req.user._id);
+        break;
+    }
+
+    if (!hasPermission) {
+      return handleForbidden()(req, res);
+    }
+
+    next();
+  }
+}
+
 module.exports = {
   createHash, compareHash, handleError, handleForbidden,
   handleUnauthorized, authenticationMiddleware,
-  dataNormalizationMiddleware };
+  dataNormalizationMiddleware, checkPermissionMiddleware };

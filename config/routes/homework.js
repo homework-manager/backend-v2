@@ -6,7 +6,8 @@ module.exports = app => {
     authenticationMiddleware,
     dataNormalizationMiddleware,
     handleError,
-    handleForbidden } = require('../../utils');
+    handleForbidden,
+    checkPermissionMiddleware: checkPermissionMiddle } = require('../../utils');
   const { regexps } = require('../../config.js');
 
   async function getHomework (req, res) {
@@ -58,38 +59,13 @@ module.exports = app => {
 
       if (!group) return;
 
-      req.__group = req.__group || group;
+      req._group = req._group || group;
 
       next();
     }
   }
 
-  function checkPermissionMiddleware (role) {
-    return async (req, res, next) => {
-      const group = await getGroup(req, res);
-
-      if (!group) return;
-
-      req.__group = req.__group || group;
-
-      let hasPermission;
-
-      switch (role) {
-        case 'member':
-          hasPermission = req.__group.userIsMember(req.user._id);
-          break;
-        case 'admin':
-          hasPermission = req.__group.userIsAdmin(req.user._id);
-          break;
-      }
-
-      if (!hasPermission) {
-        return handleForbidden()(req, res);
-      }
-
-      next();
-    }
-  }
+  const checkPermissionMiddleware = role => checkPermissionMiddle(role, getGroup);
 
   function getValidHomeworkFields (body) {
     return {
