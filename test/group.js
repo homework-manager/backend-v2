@@ -100,12 +100,24 @@ describe('group', function () {
 
   describe('edit group', function () {
 
-    it('should fail at editing group (no json)', async () => {
-      const group = await createGroupViaSchema();
+    let account, token, group;
 
-      return await fetchWithToken(`/api/v1/group/${group._id}`,
-        { method: 'PATCH' }
-      )
+    beforeEach(async function () {
+      account = await createAccountViaSchema();
+      token = (await logIn(account)).token;
+
+      group = await createGroupViaSchema({
+        members: [ { id: account._id, roles: [ { admin: true } ] } ]
+      });
+    });
+
+    it('should fail at editing group (no json)', async () => {
+      return await fetch(`/api/v1/group/${group._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': token
+        }
+      })
         .then(res => res.json())
         .then(json => {
           assert.strictEqual(typeof json, 'object');
@@ -115,12 +127,11 @@ describe('group', function () {
     });
 
     it('should fail at editing group (empty json)', async () => {
-      const group = await createGroupViaSchema();
-
-      return await fetchWithToken(`/api/v1/group/${group._id}`, {
+      return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token
         },
         body: JSON.stringify({})
       })
@@ -133,17 +144,11 @@ describe('group', function () {
     });
 
     it('should fail at editing group (invalid name)', async () => {
-      const user = await createAccountViaSchema();
-      const token = await logIn(user).token;
-
-      const group = await createGroupViaSchema({
-        members: [ { id: user._id, roles: [ { admin: true } ] } ]
-      });
-
-      return await fetchWithToken(`/api/v1/group/${group._id}`, {
+      return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token
         },
         body: JSON.stringify({
           ...getMockData(),
@@ -159,17 +164,11 @@ describe('group', function () {
     });
 
     it('should fail at creating group (invalid joinName)', async () => {
-      const user = await createAccountViaSchema();
-      const token = await logIn(user).token;
-
-      const group = await createGroupViaSchema({
-        members: [ { id: user._id, roles: [ { admin: true } ] } ]
-      });
-
-      return await fetchWithToken(`/api/v1/group/${group._id}`, {
+      return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token
         },
         body: JSON.stringify({
           ...getMockData(),
@@ -185,19 +184,13 @@ describe('group', function () {
     });
 
     it('should edit group', async () => {
-      const user = await createAccountViaSchema();
-      const token = await logIn(user).token;
-
-      const group = await createGroupViaSchema({
-        members: [ { id: user._id, roles: [ { admin: true } ] } ]
-      });
-
       const newData = getMockData();
 
-      return await fetchWithToken(`/api/v1/group/${group._id}`, {
+      return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token
         },
         body: JSON.stringify(newData)
       })
