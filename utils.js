@@ -1,7 +1,7 @@
 const { SALT_LENGTH } = require('./config.js');
 
 const passport = require('passport');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 function createHash (string) {
   return bcrypt.hashSync(string, SALT_LENGTH);
