@@ -1,6 +1,7 @@
 module.exports = app => {
   const User = require('../schemas/User');
   const Group = require('../schemas/Group');
+  const HomeworkTag = require('../schemas/HomeworkTag');
   const {
     authenticationMiddleware,
     dataNormalizationMiddleware,
@@ -140,6 +141,12 @@ module.exports = app => {
         const member = group.members.find(member => (
           member.id.equals(req.body.memberId)
         ));
+
+        if (!member) {
+          return res
+            .status(404)
+            .json({ success: false, error: 'memberDoesntExist' });
+        }
         
         if (member.id.equals(req.user._id)) {
           return res
@@ -147,13 +154,7 @@ module.exports = app => {
             .json({ success: false, error: 'cannotRemoveAdminFromYourself' });
         }
 
-        if (member) {
-          member.removeAdmin();
-        } else {
-          return res
-            .status(404)
-            .json({ success: false, error: 'memberDoesntExist' });
-        }
+        member.removeAdmin();
       }
 
       try {
@@ -212,6 +213,40 @@ module.exports = app => {
       res
         .status(200)
         .json({ success: true, members: membersInfo });
+    },
+    handleUnauthorized()
+  );
+
+  app.get(
+    '/api/v1/group/:groupId/homeworkTags',
+    authenticationMiddleware(),
+    checkIfGroupExistsMiddleware(),
+    async (req, res) => {
+      const group = req._group || await Group.findOne({ joinName: req.params.joinName });
+
+      const homeworkTags = await HomeworkTag.find({ groupId: group._id });
+
+      res
+        .status(200)
+        .json({ success: true, homeworkTags });
+    },
+    handleUnauthorized()
+  );
+
+  app.put(
+    '/api/v1/group/:groupId/homeworkTag',
+    authenticationMiddleware(),
+    checkIfGroupExistsMiddleware(),
+    async (req, res) => {
+      const group = req._group || await Group.findOne({ joinName: req.params.joinName });
+
+      const homeworkTag = new HomeworkTag();
+
+      await homeworkTag.save();
+
+      res
+        .status(200)
+        .json({ success: true, homeworkTags });
     },
     handleUnauthorized()
   );
