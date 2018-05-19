@@ -100,14 +100,23 @@ describe('group', function () {
 
   describe('edit group', function () {
 
-    let account, token, group;
+    let account1, account2, account3,
+      token1, token2, token3,
+      group;
 
     beforeEach(async function () {
-      account = await createAccountViaSchema();
-      token = (await logIn(account)).token;
+      account1 = await createAccountViaSchema();
+      account2 = await createAccountViaSchema();
+      account3 = await createAccountViaSchema();
+      token1 = (await logIn(account1)).token;
+      token2 = (await logIn(account2)).token;
+      token3 = (await logIn(account3)).token;
 
       group = await createGroupViaSchema({
-        members: [ { id: account._id, roles: [ { admin: true } ] } ]
+        members: [
+          { id: account1._id, roles: [ { admin: true } ] },
+          { id: account2._id                             }
+        ]
       });
     });
 
@@ -115,7 +124,7 @@ describe('group', function () {
       return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': token
+          'Authorization': token1
         }
       })
         .then(res => res.json())
@@ -131,7 +140,7 @@ describe('group', function () {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token
+          'Authorization': token1
         },
         body: JSON.stringify({})
       })
@@ -148,7 +157,7 @@ describe('group', function () {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token
+          'Authorization': token1
         },
         body: JSON.stringify({
           ...getMockData(),
@@ -163,12 +172,12 @@ describe('group', function () {
         });
     });
 
-    it('should fail at creating group (invalid joinName)', async () => {
+    it('should fail at editing group (invalid joinName)', async () => {
       return await fetch(`/api/v1/group/${group._id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token
+          'Authorization': token1
         },
         body: JSON.stringify({
           ...getMockData(),
@@ -183,6 +192,40 @@ describe('group', function () {
         });
     });
 
+    it('should fail at editing group (account doesn\'t have permission)', async () => {
+      return await fetch(`/api/v1/group/${group._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token2
+        },
+        body: JSON.stringify(getMockData())
+      })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, false);
+          assert.strictEqual(json.error, 'forbidden');
+        });
+    });
+
+    it('should fail at editing group (account not in group)', async () => {
+      return await fetch(`/api/v1/group/${group._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token3
+        },
+        body: JSON.stringify(getMockData())
+      })
+        .then(res => res.json())
+        .then(json => {
+          assert.strictEqual(typeof json, 'object');
+          assert.strictEqual(json.success, false);
+          assert.strictEqual(json.error, 'forbidden');
+        });
+    });
+
     it('should edit group', async () => {
       const newData = getMockData();
 
@@ -190,7 +233,7 @@ describe('group', function () {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token
+          'Authorization': token1
         },
         body: JSON.stringify(newData)
       })

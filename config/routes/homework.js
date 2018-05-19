@@ -10,6 +10,8 @@ module.exports = app => {
     checkPermissionMiddleware: checkPermissionMiddle } = require('../../utils');
   const { regexps } = require('../../config.js');
 
+  const mongoose = require('mongoose');
+
   async function getHomework (req, res) {
     const homeworkId =
       req.body._id
@@ -17,6 +19,13 @@ module.exports = app => {
         : req.params.homeworkId;
     
     if (!homeworkId) return undefined;
+
+    if (!mongoose.Types.ObjectId.isValid(homeworkId)) {
+      res
+        .status(404)
+        .json({ success: false, error: 'homeworkNotFound' });
+      return false;
+    }
 
     const homework = await Homework.findById(homeworkId);
 
@@ -70,7 +79,8 @@ module.exports = app => {
   function getValidHomeworkFields (body) {
     return {
       title: body.title,
-      description: body.description
+      description: body.description,
+      tags: body.tags
     };
   }
 
@@ -146,13 +156,9 @@ module.exports = app => {
       let homework;
 
       try {
-        homework = await Homework.findById(req.params.homeworkId);
+        homework = await getHomework(req, res);
 
-        if (!homework) {
-          return res
-            .status(404)
-            .json({ success: false, error: 'homeworkNotFound' });
-        }
+        if (homework === false) return;
 
         const homeworkData = {
           ...homework._doc, ...getValidHomeworkFields(req.body)

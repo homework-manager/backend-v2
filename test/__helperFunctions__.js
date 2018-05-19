@@ -1,5 +1,6 @@
 const User = require('../config/schemas/User');
 const Group = require('../config/schemas/Group');
+const Homework = require('../config/schemas/Homework');
 
 // #################
 //  mock data stuff
@@ -19,7 +20,9 @@ const getMockData = () => ({
   fullname: getRandomUsername(),
   password: getRandomPassword(),
   name: getRandomUsername(),
-  joinName: getRandomUsername()
+  joinName: getRandomUsername(),
+  title: getRandomUsername(),
+  description: getRandomUsername()
 });
 
 // #################
@@ -105,6 +108,12 @@ const createGroup = createUsingAPI('group', 'POST', true);
 const createGroupViaSchema = createUsingSchema(Group);
 
 // #################
+//  homework stuff
+// #################
+
+const createHomeworkViaSchema = createUsingSchema(Homework);
+
+// #################
 //  export everything
 // #################
 
@@ -112,4 +121,5 @@ module.exports = {
   getMockData, fetch, fetchWithToken,
   logIn, getRandomToken,
   createAccount, createAccountViaSchema, editAccount,
-  createGroup, createGroupViaSchema };
+  createGroup, createGroupViaSchema,
+  createHomeworkViaSchema };
