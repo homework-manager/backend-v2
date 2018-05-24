@@ -7,7 +7,8 @@ module.exports = app => {
     dataNormalizationMiddleware,
     handleError,
     handleForbidden,
-    checkPermissionMiddleware: checkPermissionMiddle } = require('../../utils');
+    checkPermissionMiddleware: checkPermissionMiddle,
+    groupExistsMiddleware: groupExistsMiddle } = require('../../utils');
   const { regexps } = require('../../config.js');
 
   const mongoose = require('mongoose');
@@ -62,17 +63,7 @@ module.exports = app => {
     return group;
   }
 
-  function groupExistsMiddleware () {
-    return async (req, res, next) => {
-      const group = await getGroup(req, res);
-
-      if (!group) return;
-
-      req._group = req._group || group;
-
-      next();
-    }
-  }
+  const groupExistsMiddleware = () => groupExistsMiddle(getGroup);
 
   const checkPermissionMiddleware = role => checkPermissionMiddle(role, getGroup);
 

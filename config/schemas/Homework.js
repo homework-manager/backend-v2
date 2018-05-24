@@ -10,7 +10,8 @@ const homeworkSchema = mongoose.Schema({
   description: { type: String, validate: regexps.homework.description },
   groupId: { type: ObjectId, required: true },
   createdBy: { type: ObjectId, required: true },
-  doneBy: { type: [ObjectId], default: [], required: true }
+  doneBy: { type: [ObjectId], default: [], required: true },
+  tags: { type: [ { type: ObjectId, ref: 'HomeworkTag' } ], default: [], required: true }
 }, { timestamps: true });
 
 homeworkSchema.methods.markUserAsDone = function (userId) {

@@ -7,9 +7,12 @@ const { regexps } = require('../../config');
 
 const homeworkTagSchema = mongoose.Schema({
   name: { type: String, required: true },
-  groupId: { type: ObjectId, required: true }
+  color: { type: String, required: true, default: 'black' },
+  groupId: { type: ObjectId, ref: 'Group', required: true },
+  createdBy: { type: ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
+homeworkTagSchema.path('color').validate(value => (!value) || (value.length <= 75));
 homeworkTagSchema.path('name').validate(value => (!value) || (value.length <= 75));
 
 homeworkTagSchema.plugin(uniqueValidator);

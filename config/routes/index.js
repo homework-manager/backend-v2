@@ -3,4 +3,5 @@ module.exports = app => {
   require('./account.js')(app);
   require('./group.js')(app);
   require('./homework.js')(app);
+  require('./homeworkTags.js')(app);
 };

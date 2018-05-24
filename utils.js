@@ -59,37 +59,44 @@ function dataNormalizationMiddleware () {
 }
 
 function handleError (error, req, res) {
-  const key = Object.keys(error.errors)[0];
-  const errorObj = error.errors[key];
+  try {
+    const key = Object.keys(error.errors)[0];
+    const errorObj = error.errors[key];
 
-  switch (errorObj.kind) {
-    case 'unique':
-      return res
-        .status(409)
-        .json({ success: false, error: `${key}AlreadyExists` });
-    case 'required':
-      return res
-        .status(400)
-        .json({ success: false, error: `${key}IsRequired` });
-    case 'user defined':
-      if (error.name === 'ValidationError') {
+    switch (errorObj.kind) {
+      case 'unique':
+        return res
+          .status(409)
+          .json({ success: false, error: `${key}AlreadyExists` });
+      case 'required':
         return res
           .status(400)
-          .json({ success: false, error: `${key}IsInvalid` });
-      }
-    default:
-      if (errorObj.properties &&
-          errorObj.properties.validator instanceof RegExp) {
-            return res
-              .status(400)
-              .json({ success: false, error: `${key}IsInvalid` });
-      } else {
-        console.log('SERVER SIDE ERROR!', error)
-        
-        return res
-          .status(500)
-          .json({ success: false, error: 'serverSideError' });
-      }
+          .json({ success: false, error: `${key}IsRequired` });
+      case 'user defined':
+        if (error.name === 'ValidationError') {
+          return res
+            .status(400)
+            .json({ success: false, error: `${key}IsInvalid` });
+        }
+      default:
+        if (errorObj.properties &&
+            errorObj.properties.validator instanceof RegExp) {
+              return res
+                .status(400)
+                .json({ success: false, error: `${key}IsInvalid` });
+        } else {
+          console.log('SERVER SIDE ERROR!', error)
+          
+          return res
+            .status(500)
+            .json({ success: false, error: 'serverSideError' });
+        }
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') console.log(error)
+    return res
+      .status(500)
+      .json({ success: false, error: 'serverSideError' });
   }
 }
 
@@ -118,7 +125,20 @@ function checkPermissionMiddleware (role, getGroup) {
   }
 }
 
+function groupExistsMiddleware (getGroup) {
+  return async (req, res, next) => {
+    const group = await getGroup(req, res);
+
+    if (!group) return;
+
+    req._group = req._group || group;
+
+    next();
+  }
+}
+
 module.exports = {
   createHash, compareHash, handleError, handleForbidden,
   handleUnauthorized, authenticationMiddleware,
-  dataNormalizationMiddleware, checkPermissionMiddleware };
+  dataNormalizationMiddleware, checkPermissionMiddleware,
+  groupExistsMiddleware };

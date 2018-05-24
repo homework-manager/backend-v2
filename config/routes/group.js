@@ -221,39 +221,4 @@ module.exports = app => {
     handleUnauthorized()
   );
 
-  app.get(
-    '/api/v1/group/:groupId/homeworkTags',
-    authenticationMiddleware(),
-    checkIfGroupExistsMiddleware(),
-    async (req, res) => {
-      const group = req._group || await Group.findOne({ joinName: req.params.joinName });
-
-      const homeworkTags = await HomeworkTag.find({ groupId: group._id });
-
-      res
-        .status(200)
-        .json({ success: true, homeworkTags });
-    },
-    handleUnauthorized()
-  );
-
-  app.put(
-    '/api/v1/group/:groupId/homeworkTag',
-    authenticationMiddleware(),
-    checkIfGroupExistsMiddleware(),
-    checkPermissionMiddleware('admin'),
-    async (req, res) => {
-      const group = req._group || await Group.findOne({ joinName: req.params.joinName });
-
-      const homeworkTag = new HomeworkTag();
-
-      await homeworkTag.save();
-
-      res
-        .status(200)
-        .json({ success: true, homeworkTags });
-    },
-    handleUnauthorized()
-  );
-
 };
